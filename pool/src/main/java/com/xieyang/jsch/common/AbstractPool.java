@@ -15,6 +15,9 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 /**
  * 对象池
  * 
+ * <pre>
+ *  有时间研究一下pool.evict()方法有什么特殊的作用
+ * </pre>
  * 
  * @author 谢阳
  * @since 1.0
