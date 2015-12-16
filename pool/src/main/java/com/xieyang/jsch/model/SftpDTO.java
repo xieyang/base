@@ -26,7 +26,7 @@ public class SftpDTO {
     private String host;
     
     /* 端口 */
-    private String port;
+    private int port;
     
     /* 用户 */
     private String username;
@@ -51,14 +51,14 @@ public class SftpDTO {
     /**
      * @return the port
      */
-    public String getPort() {
+    public int getPort() {
         return port;
     }
     
     /**
      * @param port the port to set
      */
-    public void setPort(String port) {
+    public void setPort(int port) {
         this.port = port;
     }
     
