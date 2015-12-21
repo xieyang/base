@@ -1,12 +1,15 @@
 
 package com.xieyang.jsch.utils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
 import com.xieyang.jsch.JSCHContstants;
 import com.xieyang.jsch.model.SftpDTO;
 
@@ -26,6 +29,11 @@ public class SftpClient {
     /** 通道 */
     private ChannelSftp channel = null;
     
+    /**
+     * 构造函数
+     * 
+     * @param sftpDTO
+     */
     public SftpClient(SftpDTO sftpDTO) {
         // 传入参数校验
         if (sftpDTO == null) {
@@ -47,9 +55,12 @@ public class SftpClient {
         try {
             session = client.getSession(sftpDTO.getUsername(), sftpDTO.getHost(), iPort);
             Properties objConfig = new Properties();
+            // 设置第一次登陆的时候提示，可选值：(ask | yes | no)
             objConfig.put("StrictHostKeyChecking", "no");
             session.setConfig(objConfig);
+            // 设置登录超时时间
             session.setTimeout(JSCHContstants.DEFAULT_TIMEOUT);
+            session.setPassword(sftpDTO.getPassword());
             session.connect();
             channel = (ChannelSftp) session.openChannel(JSCHContstants.DEFAULT_PROTOCOL);
             channel.connect();
@@ -94,7 +105,13 @@ public class SftpClient {
         }
     }
     
-    public void upload() {
+    /**
+     * upload
+     * 
+     * @param localFile localFile
+     * @param destFile destFile
+     */
+    public void upload(String localFile, String destFile) {
         // channel.getBulkRequests();
         // channel.getHome()
         // channel.getId()
@@ -103,6 +120,66 @@ public class SftpClient {
         // channel.isEOF()
         // channel.setBulkRequests(bulk_requests);
         // channel.start();
+        long start = System.currentTimeMillis();
+        try {
+            channel.put(localFile, destFile);
+            System.out.println("[JSCH] 将'" + localFile + "‘上传至’" + destFile + "'耗时："
+                + (System.currentTimeMillis() - start) / 1000 + "s");
+        } catch (SftpException e) {
+            System.out.println("[JSCH] 将'" + localFile + "‘上传至’" + destFile + "'失败,耗时："
+                + (System.currentTimeMillis() - start) / 1000 + "s");
+            throw new RuntimeException("[JSCH] 上传文件出错;" + "参数是localFile：" + localFile + ",destFile：" + destFile + ".",
+                e);
+        }
+    }
+    
+    /**
+     * 
+     * upload
+     * 
+     * @param inputStream inputStream
+     * @param destFile destFile
+     */
+    public void upload(InputStream inputStream, String destFile) {
+        long start = System.currentTimeMillis();
+        try {
+            channel.put(inputStream, destFile);
+            System.out
+                .println("[JSCH] 将文件上传至'" + destFile + "'耗时：" + (System.currentTimeMillis() - start) / 1000 + "s");
+        } catch (SftpException e) {
+            System.out.println("[JSCH] 将inputStream上传至'" + destFile + "'失败,耗时：" + (System.currentTimeMillis() - start)
+                / 1000 + "s");
+            throw new RuntimeException("[JSCH] 上传文件出错;参数是inputStream,destFile：" + destFile + "", e);
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException("[JSCH] 关闭inputStream失败.", e);
+                }
+            }
+        }
+    }
+    
+    /**
+     * 
+     * upload <br/>
+     * inputStream 没有关闭
+     * 
+     * @param inputStream inputStream
+     * @param destFile destFile
+     */
+    public void uploadNotCloseStream(InputStream inputStream, String destFile) {
+        long start = System.currentTimeMillis();
+        try {
+            channel.put(inputStream, destFile);
+            System.out
+                .println("[JSCH] 将文件上传至'" + destFile + "'耗时：" + (System.currentTimeMillis() - start) / 1000 + "s");
+        } catch (SftpException e) {
+            System.out.println("[JSCH] 将inputStream上传至'" + destFile + "'失败,耗时：" + (System.currentTimeMillis() - start)
+                / 1000 + "s");
+            throw new RuntimeException("[JSCH] 上传文件出错;参数是inputStream,destFile：" + destFile + "", e);
+        }
     }
     
     /**

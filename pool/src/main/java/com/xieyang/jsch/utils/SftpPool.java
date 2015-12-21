@@ -7,7 +7,10 @@
 
 package com.xieyang.jsch.utils;
 
+import org.apache.commons.pool.impl.GenericObjectPool;
+
 import com.xieyang.jsch.common.AbstractPool;
+import com.xieyang.jsch.model.SftpDTO;
 
 /**
  * SFTP Pool
@@ -17,6 +20,15 @@ import com.xieyang.jsch.common.AbstractPool;
  * @since 1.0
  * @version 2015年12月16日 谢阳
  */
-public class SftpPool extends AbstractPool {
+public class SftpPool extends AbstractPool<SftpClient> {
     
+    /**
+     * 构造函数
+     * 
+     * @param SftpDTO sftpDTO
+     * @param config config
+     */
+    public SftpPool(SftpDTO sftpDTO, GenericObjectPool.Config config) {
+        super(new SftpPoolableObjectFactory(sftpDTO), config);
+    }
 }

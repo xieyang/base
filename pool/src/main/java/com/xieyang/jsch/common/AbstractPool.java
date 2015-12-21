@@ -25,7 +25,7 @@ import org.apache.commons.pool.impl.GenericObjectPool;
  */
 /**
  * @author xieyang
- *
+ * 
  * @param <T>
  */
 public abstract class AbstractPool<T> implements Closeable {
@@ -110,22 +110,21 @@ public abstract class AbstractPool<T> implements Closeable {
         }
     }
     
-    
     /**
      * 
      * 从pool中移除对象
      * 
      * @param resource
      */
-    public void removeResource(T resource){
-    	if(resource == null){
-    		return;
-    	}
-    	try {
-			pool.invalidateObject(resource);
-		} catch (Exception e) {
-			throw new RuntimeException("[POOL] pool移除对象出错.", e);
-		}
+    public void removeResource(T resource) {
+        if (resource == null) {
+            return;
+        }
+        try {
+            pool.invalidateObject(resource);
+        } catch (Exception e) {
+            throw new RuntimeException("[POOL] pool移除对象出错.", e);
+        }
     }
     
     /**
@@ -140,8 +139,8 @@ public abstract class AbstractPool<T> implements Closeable {
             pool.close();
         } catch (Exception e) {
             throw new RuntimeException("[POOL] 关闭pool出错.", e);
-        }finally{
-        	pool = null;
+        } finally {
+            pool = null;
         }
     }
     
