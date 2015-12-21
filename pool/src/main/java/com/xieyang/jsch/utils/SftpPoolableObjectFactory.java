@@ -40,6 +40,7 @@ public class SftpPoolableObjectFactory extends BasePoolableObjectFactory {
      */
     @Override
     public Object makeObject() throws Exception {
+    	System.out.println("[POOL] 对象池创建对象.");
         return new SftpClient(sftpDTO);
     }
     
@@ -50,6 +51,7 @@ public class SftpPoolableObjectFactory extends BasePoolableObjectFactory {
      */
     @Override
     public void destroyObject(Object obj) throws Exception {
+    	System.out.println("[POOL] 对象池销毁对象.");
         SftpClient client = (SftpClient) obj;
         client.close();
     }
@@ -61,8 +63,10 @@ public class SftpPoolableObjectFactory extends BasePoolableObjectFactory {
      */
     @Override
     public boolean validateObject(Object obj) {
+    	System.out.println("[POOL] 对象池校验对象是否可连接.");
         SftpClient client = (SftpClient) obj;
-        return client.isConnected();
+//        return client.isConnected();
+        return true;
     }
     
     /**
@@ -72,6 +76,7 @@ public class SftpPoolableObjectFactory extends BasePoolableObjectFactory {
      */
     @Override
     public void activateObject(Object obj) throws Exception {
+    	System.out.println("[POOL] 对象池激活对象.");
         SftpClient client = (SftpClient) obj;
         client.connect();
     }
@@ -83,6 +88,7 @@ public class SftpPoolableObjectFactory extends BasePoolableObjectFactory {
      */
     @Override
     public void passivateObject(Object obj) throws Exception {
+    	System.out.println("[POOL] 对象池钝化对象.");
         SftpClient client = (SftpClient) obj;
         client.close();
     }
