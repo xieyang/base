@@ -27,7 +27,7 @@ public class SftpClient {
     private Session session = null;
     
     /** 通道 */
-    private ChannelSftp channel = null;
+//    private ChannelSftp channel = null;
     
     /**
      * 构造函数
@@ -52,6 +52,7 @@ public class SftpClient {
         
         int iPort = (sftpDTO.getPort() == 0) ? JSCHContstants.DEFAULT_PORT : sftpDTO.getPort();
         JSch client = new JSch();
+        long start = System.currentTimeMillis();
         try {
             session = client.getSession(sftpDTO.getUsername(), sftpDTO.getHost(), iPort);
             Properties objConfig = new Properties();
@@ -59,37 +60,48 @@ public class SftpClient {
             objConfig.put("StrictHostKeyChecking", "no");
             session.setConfig(objConfig);
             // 设置登录超时时间
-            session.setTimeout(JSCHContstants.DEFAULT_TIMEOUT);
+//            session.setTimeout(JSCHContstants.DEFAULT_TIMEOUT);
+            session.setTimeout(6000*1000);
             session.setPassword(sftpDTO.getPassword());
+//            session.setServerAliveInterval(10*1000);
             session.connect();
-            channel = (ChannelSftp) session.openChannel(JSCHContstants.DEFAULT_PROTOCOL);
-            channel.connect();
+            System.out.println("[JSCH] session连接耗时："+(System.currentTimeMillis() - start)/1000+"s");
+//            channel = (ChannelSftp) session.openChannel(JSCHContstants.DEFAULT_PROTOCOL);
+//            channel.connect();
         } catch (JSchException e) {
+        	System.out.println("[JSCH] session连接出错，耗时："+(System.currentTimeMillis() - start) / 1000 + "s");
+        	e.printStackTrace();
             throw new RuntimeException("[JSCH] 初始化jsch客户端错误.", e);
         }
     }
+    
     
     /**
      * connet
      * 
      */
     public void connect() {
-        boolean flag = false;
+//        boolean flag = false;
+    	long start = System.currentTimeMillis();
         try {
             if (!session.isConnected()) {
                 session.connect();
+                System.out.println("[JSCH] session连接耗时："+(System.currentTimeMillis() - start)/1000+"s.");
             }
-            flag = true;
+//            flag = true;
         } catch (JSchException e) {
+        	System.out.println("[JSCH] session连接出错，耗时："+(System.currentTimeMillis() - start) / 1000 + "s");
+        	e.printStackTrace();
             throw new RuntimeException("[JSCH] session连接出错.", e);
         }
-        if (flag && !channel.isConnected()) {
-            try {
-                channel.connect();
-            } catch (JSchException e) {
-                throw new RuntimeException("[JSCH] channel连接出错.", e);
-            }
-        }
+//        if (flag && !channel.isConnected()) {
+//            try {
+//                channel.connect();
+//            } catch (JSchException e) {
+//            	e.printStackTrace();
+//                throw new RuntimeException("[JSCH] channel连接出错.", e);
+//            }
+//        }
     }
     
     /**
@@ -97,12 +109,13 @@ public class SftpClient {
      * 
      */
     public void close() {
-        if (!channel.isClosed()) {
-            channel.disconnect();
-        }
+//        if (!channel.isClosed()) {
+//            channel.disconnect();
+//        }
         if (session.isConnected()) {
             session.disconnect();
         }
+        session = null;
     }
     
     /**
@@ -120,7 +133,18 @@ public class SftpClient {
         // channel.isEOF()
         // channel.setBulkRequests(bulk_requests);
         // channel.start();
-        long start = System.currentTimeMillis();
+    	long start = System.currentTimeMillis();
+    	ChannelSftp channel = null;
+		try {
+			channel = (ChannelSftp) session.openChannel(JSCHContstants.DEFAULT_PROTOCOL);
+			channel.connect();
+			System.out.println("[JSCH] channel连接耗时："+(System.currentTimeMillis() - start) / 1000 + "s");
+		} catch (JSchException e) {
+			System.out.println("[JSCH] channel连接出错，耗时："+(System.currentTimeMillis() - start) / 1000 + "s");
+			e.printStackTrace();
+			throw new RuntimeException("[JSCH] channel连接出错.", e);
+		}
+		start = System.currentTimeMillis();
         try {
             channel.put(localFile, destFile);
             System.out.println("[JSCH] 将'" + localFile + "‘上传至’" + destFile + "'耗时："
@@ -130,6 +154,11 @@ public class SftpClient {
                 + (System.currentTimeMillis() - start) / 1000 + "s");
             throw new RuntimeException("[JSCH] 上传文件出错;" + "参数是localFile：" + localFile + ",destFile：" + destFile + ".",
                 e);
+        }finally{
+        	if(channel!=null){
+        		channel.disconnect();
+        	}
+        	channel = null;
         }
     }
     
@@ -142,6 +171,17 @@ public class SftpClient {
      */
     public void upload(InputStream inputStream, String destFile) {
         long start = System.currentTimeMillis();
+        ChannelSftp channel = null;
+		try {
+			channel = (ChannelSftp) session.openChannel(JSCHContstants.DEFAULT_PROTOCOL);
+			channel.connect();
+			System.out.println("[JSCH] channel连接耗时："+(System.currentTimeMillis() - start) / 1000 + "s");
+		} catch (JSchException e) {
+			System.out.println("[JSCH] channel连接出错，耗时："+(System.currentTimeMillis() - start) / 1000 + "s");
+			e.printStackTrace();
+			throw new RuntimeException("[JSCH] channel连接出错.", e);
+		}
+		start = System.currentTimeMillis();
         try {
             channel.put(inputStream, destFile);
             System.out
@@ -158,6 +198,10 @@ public class SftpClient {
                     throw new RuntimeException("[JSCH] 关闭inputStream失败.", e);
                 }
             }
+        	if(channel!=null){
+        		channel.disconnect();
+        	}
+        	channel = null;
         }
     }
     
@@ -171,6 +215,18 @@ public class SftpClient {
      */
     public void uploadNotCloseStream(InputStream inputStream, String destFile) {
         long start = System.currentTimeMillis();
+        
+        ChannelSftp channel = null;
+		try {
+			channel = (ChannelSftp) session.openChannel(JSCHContstants.DEFAULT_PROTOCOL);
+			channel.connect();
+			System.out.println("[JSCH] channel连接耗时："+(System.currentTimeMillis() - start) / 1000 + "s");
+		} catch (JSchException e) {
+			System.out.println("[JSCH] channel连接出错，耗时："+(System.currentTimeMillis() - start) / 1000 + "s");
+			e.printStackTrace();
+			throw new RuntimeException("[JSCH] channel连接出错.", e);
+		}
+		start = System.currentTimeMillis();
         try {
             channel.put(inputStream, destFile);
             System.out
@@ -179,6 +235,11 @@ public class SftpClient {
             System.out.println("[JSCH] 将inputStream上传至'" + destFile + "'失败,耗时：" + (System.currentTimeMillis() - start)
                 / 1000 + "s");
             throw new RuntimeException("[JSCH] 上传文件出错;参数是inputStream,destFile：" + destFile + "", e);
+        }finally{
+        	if(channel!=null){
+        		channel.disconnect();
+        	}
+        	channel = null;
         }
     }
     
@@ -188,6 +249,6 @@ public class SftpClient {
      * @return boolean
      */
     public boolean isConnected() {
-        return session.isConnected() && channel.isConnected();
+        return  session.isConnected();
     }
 }
