@@ -23,11 +23,6 @@ import org.apache.commons.pool.impl.GenericObjectPool;
  * @since 1.0
  * @version 2015年12月15日 谢阳
  */
-/**
- * @author xieyang
- * 
- * @param <T>
- */
 public abstract class AbstractPool<T> implements Closeable {
     
     /* pool */
