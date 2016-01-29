@@ -6,12 +6,17 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<dependencies>
 		<!-- commons-pool -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.apache.commons</groupId> -->
-		<!-- <artifactId>commons-pool2</artifactId> -->
-		<!-- <version>2.3</version> -->
-		<!-- </dependency> -->
-		
+	<!-- <dependency> -->
+	<!-- <groupId>org.apache.commons</groupId> -->
+	<!-- <artifactId>commons-pool2</artifactId> -->
+	<!-- <version>2.3</version> -->
+	<!-- </dependency> -->
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+			<version>1.5.3</version>
+		</dependency>
+
 		<!-- commons-lang -->
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -19,23 +24,44 @@
 			<version>2.6</version>
 		</dependency>
 		<!-- redis -->
-		<dependency>
-			<groupId>redis.clients</groupId>
-			<artifactId>jedis</artifactId>
-			<version>2.8.0</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>redis.clients</groupId> -->
+		<!-- <artifactId>jedis</artifactId> -->
+		<!-- <version>2.8.0</version> -->
+		<!-- </dependency> -->
 		<!-- DBCP -->
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-			<version>1.4</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>commons-dbcp</groupId> -->
+		<!-- <artifactId>commons-dbcp</artifactId> -->
+		<!-- <version>1.4</version> -->
+		<!-- </dependency> -->
 		<!-- jsch -->
 		<dependency>
 			<groupId>com.jcraft</groupId>
 			<artifactId>jsch</artifactId>
-			<version>0.1.53</version>
+			<version>0.1.49</version>
 		</dependency>
+		<!-- ftp -->
+		<dependency>
+			<groupId>commons-net</groupId>
+			<artifactId>commons-net</artifactId>
+			<version>3.3</version>
+		</dependency>
+
+		<!-- test jar -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.13</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
