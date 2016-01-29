@@ -1,11 +1,15 @@
 
 package com.xieyang.jsch.utils;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.Properties;
 
 import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -241,6 +245,62 @@ public class SftpClient {
         	}
         	channel = null;
         }
+    }
+    
+    /**
+     * 执行shell命令
+     * 
+     * @param cmd 命令
+     * @param outputFileName 输出的文件
+     */
+    @SuppressWarnings("static-access")
+	public void shell(String cmd,String outputFileName){
+    	long start = System.currentTimeMillis();
+    	
+    	ChannelShell shell = null;
+    	try {
+    		shell = (ChannelShell) session.openChannel(JSCHContstants.SHELL_PROTOCOL);
+		} catch (JSchException e) {
+			System.out.println("[JSCH] channelShell连接出错，耗时："+(System.currentTimeMillis() - start) / 1000 + "s");
+			e.printStackTrace();
+			throw new RuntimeException("[JSCH] channelShell连接出错.", e);
+		}
+    	PipedInputStream pipeIn = new PipedInputStream();
+    	PipedOutputStream pipeOut = null;
+    	FileOutputStream  fileOut = null;
+    	try {
+    		pipeOut = new PipedOutputStream(pipeIn);
+    		fileOut = new FileOutputStream(outputFileName);
+			shell.setInputStream(pipeIn);
+			shell.setOutputStream(fileOut);
+			shell.connect(3000);
+			
+			pipeOut.write(cmd.getBytes());
+			Thread.currentThread().sleep(10000);
+			fileOut.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSchException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				if(pipeOut != null){
+					pipeOut.close();
+					pipeIn.close();
+				}
+				if(fileOut!=null){
+					fileOut.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			if(shell!=null){
+				shell.disconnect();
+			}
+		}
     }
     
     /**

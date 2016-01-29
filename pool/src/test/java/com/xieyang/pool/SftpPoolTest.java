@@ -33,12 +33,12 @@ public class SftpPoolTest {
 	 @Before
 	public void init() {
 		SftpDTO dto = new SftpDTO();
-//		dto.setHost("10.10.5.85");
-//		dto.setUsername("root");
-//		dto.setPassword("ctp#88");
-		dto.setHost("192.168.148.130");
+		dto.setHost("10.10.5.85");
 		dto.setUsername("root");
-		dto.setPassword("root");
+		dto.setPassword("ctp#88");
+//		dto.setHost("192.168.148.130");
+//		dto.setUsername("root");
+//		dto.setPassword("root");
 		dto.setPort(22);
 		GenericObjectPool.Config config = new GenericObjectPool.Config();
 		config.maxActive = 3;
@@ -48,6 +48,13 @@ public class SftpPoolTest {
 		config.testOnReturn = true;
 		pool = new SftpPool(dto, config);
 	}
+	 
+	 @Test
+	 public void testCopyFile(){
+		 SftpClient client = pool.getResource();
+		 client.shell("cp /xieyang/t.tar.gz /xieyang/t1.tar.gz \n", "d:/xieyang.txt");
+		 pool.removeResource(client);
+	 }
 
 	 @Test
 	@SuppressWarnings("javadoc")
