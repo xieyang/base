@@ -52,7 +52,17 @@ public class SftpPoolTest {
 	 @Test
 	 public void testCopyFile(){
 		 SftpClient client = pool.getResource();
-		 client.shell("cp /xieyang/t.tar.gz /xieyang/t1.tar.gz \n", "d:/xieyang.txt");
+//		 client.shell("cp /xieyang/t.tar.gz /xieyang/t1.tar.gz \n", "d:/xieyang.log");
+		 client.shell("ls /xieyang \n", "d:/xieyang.log");
+		 pool.removeResource(client);
+	 }
+	 
+	 @Test
+	 public void testExec(){
+		 SftpClient client = pool.getResource();
+//		 client.excute("ls /xieyang");
+//		 client.excute("cp /xieyang/t.tar.gz /xieyang/t1.tar.gz");
+		 client.excute("ls -lR /atmFile/gd");
 		 pool.removeResource(client);
 	 }
 

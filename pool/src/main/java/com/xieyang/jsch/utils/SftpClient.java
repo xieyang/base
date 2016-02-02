@@ -8,6 +8,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Properties;
 
+import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSch;
@@ -272,7 +273,7 @@ public class SftpClient {
     		pipeOut = new PipedOutputStream(pipeIn);
     		fileOut = new FileOutputStream(outputFileName);
 			shell.setInputStream(pipeIn);
-			shell.setOutputStream(fileOut);
+			shell.setOutputStream(fileOut,true);
 			shell.connect(3000);
 			
 			pipeOut.write(cmd.getBytes());
@@ -301,6 +302,56 @@ public class SftpClient {
 				shell.disconnect();
 			}
 		}
+    }
+    
+    public int excute(String cmd){
+    	ChannelExec channel = null;
+    	int res = -1;
+    	long start = System.currentTimeMillis();
+    	try {
+    		channel = (ChannelExec)session.openChannel(JSCHContstants.EXEC_PROTOCOL);
+    		channel.setCommand(cmd);
+    		channel.setInputStream(null);
+    		channel.setErrStream(System.err);
+    		InputStream in = channel.getInputStream();
+    		channel.connect();
+    		System.out.println("connect的耗时:"+(System.currentTimeMillis() - start) / 1000 + "s");
+    		start = System.currentTimeMillis();
+    		StringBuffer buf = new StringBuffer( 1024 );
+    		byte[] tmp = new byte[ 1024 ];
+    		while ( true ) {
+    			System.out.println("in:"+in.available());
+    			while ( in.available() > 0 ) {
+    				int i = in.read( tmp, 0, 1024 );
+    				if ( i < 0 ) break;
+    				buf.append( new String( tmp, 0, i ) );
+    			}
+    			System.out.println("read的耗时:"+(System.currentTimeMillis() - start) / 1000 + "s");
+    			System.out.println("is closed:"+channel.isClosed());
+    			
+    			if (channel.isClosed()) {
+    				res = channel.getExitStatus();
+    				System.out.println( String.format( "Exit-status: %d", res ) );
+    				break;
+    			}
+    			Thread.sleep(1000);
+    		}
+    		System.out.println("output:"+buf.toString() );
+		} catch (JSchException e) {
+			System.out.println("[JSCH] channelExec连接出错，耗时："+(System.currentTimeMillis() - start) / 1000 + "s");
+			e.printStackTrace();
+			throw new RuntimeException("[JSCH] channelExec连接出错.", e);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}finally{
+			if(channel!=null){
+				channel.disconnect();
+				
+			}
+		}
+    	return res;
     }
     
     /**
