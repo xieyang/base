@@ -19,4 +19,10 @@ public class JSCHContstants {
     
     /** 默认的通讯协议 */
     public static final String DEFAULT_PROTOCOL = "sftp";
+    
+    /** Shell通讯协议*/
+    public static final String SHELL_PROTOCOL = "shell";
+    
+    /** exec通讯协议*/
+    public static final String EXEC_PROTOCOL = "exec";
 }
